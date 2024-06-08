@@ -2,14 +2,82 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/simpsonltdblue">
 
-    <TextView
-        android:id="@+id/scanDataTextView"
-        android:layout_width="wrap_content"
+    <!-- Location Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/locationCardView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Scan Data Will Appear Here"
-        android:textSize="18sp"
-        android:layout_centerInParent="true"/>
-</RelativeLayout>
+        android:layout_marginBottom="16dp"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltddark"
+        android:elevation="0dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentTop="true">
 
+        <TextView
+            android:id="@+id/locationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center_horizontal"/>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Actual Location Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/actualLocationCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltddark"
+        android:elevation="4dp"
+        android:layout_below="@id/locationCardView"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true">
+
+        <TextView
+            android:id="@+id/actualLocationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="8dp"
+            android:text="Actual Location"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Scanned Item Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/scanDataCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltddark"
+        android:elevation="4dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/scanDataTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scan Data Will Appear Here"
+            android:textSize="24sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
