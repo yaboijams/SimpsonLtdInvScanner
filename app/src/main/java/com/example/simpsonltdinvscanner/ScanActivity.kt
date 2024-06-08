@@ -3,29 +3,64 @@ package com.example.simpsonltdinvscanner
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 
 class ScanActivity : AppCompatActivity() {
     private val viewModel: ScanViewModel by viewModels()
 
+    private var isScanningLocation = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
 
-        viewModel.scanData.observe(this, Observer { scanData ->
-            Log.d("ScanActivity", "Scanned data observed: $scanData")
-            // Update UI with scanned data
+        viewModel.locationScanData.observe(this, Observer { scanData ->
+            Log.d("ScanActivity", "Location scanned data observed: $scanData")
+            findViewById<TextView>(R.id.actualLocationTextView).text = scanData
+            isScanningLocation = false
+            viewModel.prepareForNextScan()
+        })
+
+        viewModel.skuScanData.observe(this, Observer { scanData ->
+            Log.d("ScanActivity", "SKU scanned data observed: $scanData")
             findViewById<TextView>(R.id.scanDataTextView).text = scanData
+            isScanningLocation = true
+            viewModel.prepareForNextScan()
+        })
+
+        viewModel.errorMessage.observe(this, Observer { errorMessage ->
+            findViewById<TextView>(R.id.errorMessageTextView).apply {
+                text = errorMessage
+                visibility = View.VISIBLE // Set visibility to VISIBLE
+            }
+        })
+
+        viewModel.retryScan.observe(this, Observer { retry ->
+            if (retry) {
+                // Prompt the user to scan again
+                AlertDialog.Builder(this)
+                    .setTitle("Invalid Scan")
+                    .setMessage("Please scan again.")
+                    .setPositiveButton("OK") { dialog, _ ->
+                        dialog.dismiss()
+                        // Allow the user to make another scan
+                        viewModel.prepareForNextScan()
+                    }
+                    .setCancelable(false)
+                    .show()
+            }
         })
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         Log.d("ScanActivity", "Key down event: keyCode = $keyCode")
         if (keyCode == 103 || keyCode == 10036) {
-            viewModel.triggerScanner()
+            viewModel.triggerScanner(isScanningLocation)
             return true
         }
         return super.onKeyDown(keyCode, event)
@@ -34,7 +69,6 @@ class ScanActivity : AppCompatActivity() {
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
         Log.d("ScanActivity", "Key up event: keyCode = $keyCode")
         if (keyCode == 103 || keyCode == 10036) {
-            // Optionally handle key up event
             return true
         }
         return super.onKeyUp(keyCode, event)

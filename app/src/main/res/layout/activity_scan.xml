@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@color/simpsonltdblue">
+    android:background="@color/simpsonltdblue2">
 
     <!-- Location Section -->
     <androidx.cardview.widget.CardView
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:padding="16dp"
-        android:backgroundTint="@color/simpsonltddark"
+        android:backgroundTint="@color/simpsonltdblue"
         android:elevation="0dp"
         android:layout_marginRight="8dp"
         android:layout_marginLeft="8dp"
@@ -28,8 +28,8 @@
             android:textStyle="bold"
             android:textColor="@color/simpsonltd"
             android:layout_gravity="center_horizontal"/>
-
     </androidx.cardview.widget.CardView>
+
 
     <!-- Actual Location Section -->
     <androidx.cardview.widget.CardView
@@ -37,25 +37,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:backgroundTint="@color/simpsonltddark"
-        android:elevation="4dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
         android:layout_below="@id/locationCardView"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true">
+        android:layout_marginTop="16dp">
 
         <TextView
             android:id="@+id/actualLocationTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
             android:text="Actual Location"
             android:textSize="16sp"
-            android:textColor="@color/simpsonltd"
-            />
+            android:textColor="@color/simpsonltd"/>
 
     </androidx.cardview.widget.CardView>
+
+    <!-- Error Message Section -->
+    <TextView
+        android:id="@+id/errorMessageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="16sp"
+        android:layout_below="@id/actualLocationCardView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
 
     <!-- Scanned Item Section -->
     <androidx.cardview.widget.CardView
@@ -63,8 +72,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:backgroundTint="@color/simpsonltddark"
-        android:elevation="4dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp">
@@ -77,7 +86,6 @@
             android:textSize="24sp"
             android:textColor="@color/simpsonltd"
             android:layout_gravity="center"/>
-
     </androidx.cardview.widget.CardView>
 
 </RelativeLayout>
