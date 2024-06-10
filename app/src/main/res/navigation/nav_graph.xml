@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@id/fragment_scan">
+
+    <fragment
+        android:id="@+id/fragment_scan"
+        android:name="com.example.simpsonltdinvscanner.ScanFragment"
+        android:label="Scan"
+        tools:layout="@layout/activity_scan" />
+
+    <fragment
+        android:id="@+id/fragment_inventory"
+        android:name="com.example.simpsonltdinvscanner.InventoryFragment"
+        android:label="Inventory"
+        tools:layout="@layout/activity_inventory" >
+
+        <!-- Define an action to navigate from InventoryActivity to ScanActivity -->
+        <action
+            android:id="@+id/action_inventory_to_scan"
+            app:destination="@id/fragment_scan" />
+    </fragment>
+</navigation>
+
+
+

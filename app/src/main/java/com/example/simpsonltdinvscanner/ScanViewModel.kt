@@ -35,8 +35,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
-    private val _retryScan = MutableLiveData<Boolean>()
-    val retryScan: LiveData<Boolean> get() = _retryScan
+    private var isScannerInitialized = false
 
     init {
         initEMDK(application)
@@ -44,33 +43,30 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
 
     private fun initEMDK(application: Application) {
         val context = application.applicationContext
-        Log.d("ScanViewModel", "Initializing EMDK")
+        Log.d("ScanViewModel", "Initializing EMDK with context: $context")
 
-        val results: EMDKResults = EMDKManager.getEMDKManager(context, object : EMDKManager.EMDKListener {
-            override fun onOpened(emdkManager: EMDKManager) {
-                Log.d("ScanViewModel", "EMDK Manager opened successfully")
-                this@ScanViewModel.onOpened(emdkManager)
+        try {
+            val results: EMDKResults = EMDKManager.getEMDKManager(context, this)
+            if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
+                Log.e("ScanViewModel", "Failed to get EMDK Manager. Status code: ${results.statusCode}")
+            } else {
+                Log.d("ScanViewModel", "EMDK Manager initialization started")
             }
-
-            override fun onClosed() {
-                Log.d("ScanViewModel", "EMDK Manager closed")
-                this@ScanViewModel.onClosed()
-            }
-        })
-
-        if (results.statusCode != EMDKResults.STATUS_CODE.SUCCESS) {
-            Log.e("ScanViewModel", "Failed to get EMDK Manager. Status code: ${results.statusCode}")
-        } else {
-            Log.d("ScanViewModel", "EMDK Manager initialization started")
+        } catch (e: Exception) {
+            Log.e("ScanViewModel", "Exception during EMDK initialization: ${e.message}")
         }
     }
 
+
     override fun onOpened(emdkManager: EMDKManager) {
         this.emdkManager = emdkManager
+        Log.d("ScanViewModel", "EMDK Manager opened successfully")
+
         barcodeManager = emdkManager.getInstance(EMDKManager.FEATURE_TYPE.BARCODE) as BarcodeManager
         Log.d("ScanViewModel", "BarcodeManager initialized successfully")
         initScanner()
     }
+
 
     private fun initScanner() {
         try {
@@ -84,14 +80,16 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
             scanner.triggerType = Scanner.TriggerType.HARD
             scanner.enable()
             Log.d("ScanViewModel", "Scanner initialized successfully")
+            isScannerInitialized = true
         } catch (e: ScannerException) {
             Log.e("ScanViewModel", "Error initializing scanner: ${e.message}")
+            isScannerInitialized = false
         }
     }
 
     fun triggerScanner(isScanningLocation: Boolean) {
         try {
-            if (::scanner.isInitialized) {
+            if (isScannerInitialized) {
                 Log.d("ScanViewModel", "Scanner triggered")
                 this.isScanningLocation = isScanningLocation
                 scanner.read()
@@ -102,6 +100,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
             Log.e("ScanViewModel", "Error triggering scanner: ${e.message}")
         }
     }
+
 
     fun prepareForNextScan() {
         if (::scanner.isInitialized) {
@@ -130,7 +129,6 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                     } else {
                         Log.d("ScanViewModel", "Invalid location: $scannedData")
                         _errorMessage.postValue("Invalid location: $scannedData")
-                        _retryScan.postValue(true)
                     }
                 } else {
                     _skuScanData.postValue(scannedData)
@@ -173,8 +171,12 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
     }
 
     override fun onClosed() {
-        emdkManager.release()
-        Log.d("ScanViewModel", "EMDK Manager released")
+        if (::emdkManager.isInitialized) {
+            emdkManager.release()
+            Log.d("ScanViewModel", "EMDK Manager released")
+        } else {
+            Log.e("ScanViewModel", "EMDK Manager was not initialized")
+        }
     }
 
     override fun onCleared() {
@@ -185,4 +187,3 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         }
     }
 }
-

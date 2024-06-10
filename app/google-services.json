@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "243106180640",
+    "firebase_url": "https://simpsonltd-bfd2b-default-rtdb.firebaseio.com",
+    "project_id": "simpsonltd-bfd2b",
+    "storage_bucket": "simpsonltd-bfd2b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:243106180640:android:c930aec720aad1406e5645",
+        "android_client_info": {
+          "package_name": "com.example.simpsonltdinvscanner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "243106180640-ns307df8btjn5mcot6e9e308v6bj7831.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkABSTnSp8jKykpX4A8rLSoBMLkp7esNA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "243106180640-johvn0rge6enunsb46n2a6t779mm30pm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,7 +6,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 
@@ -36,23 +35,7 @@ class ScanActivity : AppCompatActivity() {
         viewModel.errorMessage.observe(this, Observer { errorMessage ->
             findViewById<TextView>(R.id.errorMessageTextView).apply {
                 text = errorMessage
-                visibility = View.VISIBLE // Set visibility to VISIBLE
-            }
-        })
-
-        viewModel.retryScan.observe(this, Observer { retry ->
-            if (retry) {
-                // Prompt the user to scan again
-                AlertDialog.Builder(this)
-                    .setTitle("Invalid Scan")
-                    .setMessage("Please scan again.")
-                    .setPositiveButton("OK") { dialog, _ ->
-                        dialog.dismiss()
-                        // Allow the user to make another scan
-                        viewModel.prepareForNextScan()
-                    }
-                    .setCancelable(false)
-                    .show()
+                visibility = View.VISIBLE
             }
         })
     }
@@ -74,3 +57,4 @@ class ScanActivity : AppCompatActivity() {
         return super.onKeyUp(keyCode, event)
     }
 }
+
