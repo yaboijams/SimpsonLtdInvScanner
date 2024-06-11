@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -30,8 +31,29 @@
             android:layout_gravity="center_horizontal"/>
     </androidx.cardview.widget.CardView>
 
-
     <!-- Actual Location Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/roomDescriptionCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/actualLocationCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/roomDescriptionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:text="Room Description"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"/>
+
+    </androidx.cardview.widget.CardView>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/actualLocationCardView"
         android:layout_width="match_parent"
@@ -53,6 +75,7 @@
             android:textColor="@color/simpsonltd"/>
 
     </androidx.cardview.widget.CardView>
+
 
     <!-- Error Message Section -->
     <TextView
@@ -84,6 +107,153 @@
             android:layout_height="wrap_content"
             android:text="Scan Data Will Appear Here"
             android:textSize="24sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Room Description Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/titleCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/scanDataCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Category Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/categoryCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/titleCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/categoryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Subcategory Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/subcategoryCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/categoryCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/subcategoryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Subcategory"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Subcategory Type Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/subcategoryTypeCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/subcategoryCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/subcategoryTypeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Subcategory Type"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Action Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/actionCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/subcategoryTypeCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/actionTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Action"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Caliber Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/caliberCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/actionCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/caliberTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Caliber"
+            android:textSize="16sp"
+            android:textColor="@color/simpsonltd"
+            android:layout_gravity="center"/>
+    </androidx.cardview.widget.CardView>
+
+    <!-- License Section -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/licenseCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:backgroundTint="@color/simpsonltdblue"
+        android:elevation="0dp"
+        android:layout_below="@id/caliberCardView"
+        android:layout_marginTop="16dp">
+
+        <TextView
+            android:id="@+id/licenseTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="License"
+            android:textSize="16sp"
             android:textColor="@color/simpsonltd"
             android:layout_gravity="center"/>
     </androidx.cardview.widget.CardView>
