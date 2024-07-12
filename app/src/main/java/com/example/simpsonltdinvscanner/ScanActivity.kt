@@ -42,17 +42,17 @@ class ScanActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.roomDescriptionTextView).text = description
         })
 
-        viewModel.category.observe(this, Observer { category ->
-            findViewById<TextView>(R.id.categoryTextView).text = category
-        })
-
-        viewModel.subcategory.observe(this, Observer { subcategory ->
-            findViewById<TextView>(R.id.subcategoryTextView).text = subcategory
-        })
-
-        viewModel.subcategoryType.observe(this, Observer { subcategoryType ->
-            findViewById<TextView>(R.id.subcategoryTypeTextView).text = subcategoryType
-        })
+//        viewModel.category.observe(this, Observer { category ->
+//            findViewById<TextView>(R.id.categoryTextView).text = category
+//        })
+//
+//        viewModel.subcategory.observe(this, Observer { subcategory ->
+//            findViewById<TextView>(R.id.subcategoryTextView).text = subcategory
+//        })
+//
+//        viewModel.subcategoryType.observe(this, Observer { subcategoryType ->
+//            findViewById<TextView>(R.id.subcategoryTypeTextView).text = subcategoryType
+//        })
 
         viewModel.action.observe(this, Observer { action ->
             findViewById<TextView>(R.id.actionTextView).text = action
@@ -68,6 +68,10 @@ class ScanActivity : AppCompatActivity() {
 
         viewModel.title.observe(this, Observer { title ->
             findViewById<TextView>(R.id.titleTextView).text = title
+        })
+
+        viewModel.serialnum.observe(this, Observer { serialnum ->
+            findViewById<TextView>(R.id.serialnumTextView).text = serialnum
         })
     }
 

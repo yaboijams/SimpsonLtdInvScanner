@@ -1,7 +1,9 @@
 package com.example.simpsonltdinvscanner
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +15,10 @@ import com.symbol.emdk.barcode.ScanDataCollection
 import com.symbol.emdk.barcode.Scanner
 import com.symbol.emdk.barcode.ScannerException
 import com.symbol.emdk.barcode.ScannerResults
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.ZoneId
+
 
 class ScanViewModel(application: Application) : AndroidViewModel(application), EMDKManager.EMDKListener, Scanner.DataListener {
     private lateinit var emdkManager: EMDKManager
@@ -48,6 +54,9 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
 
     private val _title = MutableLiveData<String>()
     val title: LiveData<String> get() = _title
+
+    private val _serialnum = MutableLiveData<String>()
+    val serialnum: LiveData<String> get() = _serialnum
 
     private var currentLocation: String? = null
 
@@ -135,6 +144,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onData(scanDataCollection: ScanDataCollection?) {
         if (scanDataCollection != null && scanDataCollection.result == ScannerResults.SUCCESS) {
             for (scanData in scanDataCollection.scanData) {
@@ -145,6 +155,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkLocationValidityOrSku(data: String) {
         locationsCollection.get()
             .addOnSuccessListener { documents ->
@@ -164,10 +175,12 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                     _locationScanData.postValue(data)
                     _roomDescription.postValue(description)
                 } else {
+                    val locCode = documents.firstOrNull { it.getString("locCode") != null }?.getString("locCode")
                     _skuScanData.postValue(data)
                     fetchAdditionalData(data)
-                    saveScanDataToFirebase(currentLocation, data)
+                    saveScanDataToFirebase(currentLocation, data, locCode)
                 }
+
                 prepareForNextScan()
             }
             .addOnFailureListener { exception ->
@@ -187,6 +200,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                     _caliber.postValue(document.getString("Caliber") ?: "Data not available")
                     _license.postValue(document.getString("License") ?: "Data not available")
                     _title.postValue(document.getString("Title") ?: "Data not available")
+                    _serialnum.postValue(document.getString("SerialNum") ?: "Data not available")
                 } else {
                     _category.postValue("Data not available")
                     _subcategory.postValue("Data not available")
@@ -195,6 +209,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                     _caliber.postValue("Data not available")
                     _license.postValue("Data not available")
                     _title.postValue("Data not available")
+                    _serialnum.postValue("Data not available")
                 }
             }
             .addOnFailureListener { exception ->
@@ -206,26 +221,53 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 _caliber.postValue("Data not available")
                 _license.postValue("Data not available")
                 _title.postValue("Data not available")
+                _serialnum.postValue("Data not available")
             }
     }
 
-    private fun saveScanDataToFirebase(location: String?, sku: String) {
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun saveScanDataToFirebase(location: String?, sku: String, locCode: String?) {
         if (location == null) {
             Log.e("ScanViewModel", "Location is null. Cannot save scan data.")
             return
         }
 
-        val scanData = hashMapOf("sku" to sku, "timestamp" to System.currentTimeMillis())
+        // Save locCode in the scanner document
+        val scannerDocData = hashMapOf(
+            "locCode" to locCode
+        )
+
         db.collection("scanner")
             .document(location)
-            .collection("skus")
-            .add(scanData)
-            .addOnSuccessListener { documentReference ->
-                Log.d("ScanViewModel", "DocumentSnapshot written with ID: ${documentReference.id}")
+            .set(scannerDocData) // Set the locCode in the scanner document
+            .addOnSuccessListener {
+                Log.d("ScanViewModel", "locCode set successfully for location: $location")
+
+                // Format the timestamp to ISO 8601 in CST
+                val timestamp = ZonedDateTime.now(ZoneId.of("America/Chicago"))
+                    .format(DateTimeFormatter.ISO_INSTANT)
+
+                // Save SKU and timestamp in a new document with the SKU as the document ID
+                val skuData = hashMapOf(
+                    "sku" to sku,
+                    "timestamp" to timestamp
+                )
+                db.collection("scanner")
+                    .document(location)
+                    .collection("skus")
+                    .document(sku) // Use SKU as the document ID
+                    .set(skuData)
+                    .addOnSuccessListener {
+                        Log.d("ScanViewModel", "SKU data added with SKU as document ID: $sku")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("ScanViewModel", "Error adding SKU data", e)
+                        _errorMessage.postValue("Error saving SKU data: ${e.message}")
+                    }
             }
             .addOnFailureListener { e ->
-                Log.w("ScanViewModel", "Error adding document", e)
-                _errorMessage.postValue("Error saving scan data: ${e.message}")
+                Log.w("ScanViewModel", "Error setting locCode", e)
+                _errorMessage.postValue("Error saving locCode: ${e.message}")
             }
     }
 
