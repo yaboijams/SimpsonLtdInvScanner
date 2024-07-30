@@ -1,6 +1,8 @@
 package com.example.simpsonltdinvscanner
 
 import android.app.Application
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -19,11 +21,12 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
 
-
 class ScanViewModel(application: Application) : AndroidViewModel(application), EMDKManager.EMDKListener, Scanner.DataListener {
     private lateinit var emdkManager: EMDKManager
     private lateinit var barcodeManager: BarcodeManager
     private lateinit var scanner: Scanner
+
+    private val toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
 
     private val _locationScanData = MutableLiveData<String>()
     val locationScanData: LiveData<String> get() = _locationScanData
@@ -152,41 +155,53 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 Log.d("ScanViewModel", "Received scan data: $scannedData")
                 checkLocationValidityOrSku(scannedData)
             }
+        } else {
+            playErrorSound()
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkLocationValidityOrSku(data: String) {
-        locationsCollection.get()
-            .addOnSuccessListener { documents ->
-                var isLocation = false
-                var description = ""
-                for (document in documents) {
-                    val locCode = document.getString("locCode")
-                    val locDescription = document.getString("description")
-                    if (locCode != null && data.startsWith(locCode)) {
-                        isLocation = true
-                        description = locDescription ?: "No description available"
-                        break
+        if (currentLocation.isNullOrEmpty()) {
+            locationsCollection.get()
+                .addOnSuccessListener { documents ->
+                    var isLocation = false
+                    var description = ""
+                    for (document in documents) {
+                        val locCode = document.getString("locCode")
+                        val locDescription = document.getString("description")
+                        if (locCode != null && data.startsWith(locCode)) {
+                            isLocation = true
+                            description = locDescription ?: "No description available"
+                            currentLocation = data // Set currentLocation when a valid location is found
+                            break
+                        }
                     }
-                }
-                if (isLocation) {
-                    currentLocation = data
-                    _locationScanData.postValue(data)
-                    _roomDescription.postValue(description)
-                } else {
-                    val locCode = documents.firstOrNull { it.getString("locCode") != null }?.getString("locCode")
-                    _skuScanData.postValue(data)
-                    fetchAdditionalData(data)
-                    saveScanDataToFirebase(currentLocation, data, locCode)
-                }
+                    if (isLocation) {
+                        _locationScanData.postValue(data)
+                        _roomDescription.postValue(description)
+                    } else {
+                        _skuScanData.postValue(data)
+                        fetchAdditionalData(data)
+                        saveScanDataToFirebase(currentLocation, data, null)
+                        if (currentLocation.isNullOrEmpty()) {
+                            playErrorSound() // Play error sound only if no valid location was set
+                        }
+                    }
 
-                prepareForNextScan()
-            }
-            .addOnFailureListener { exception ->
-                Log.e("ScanViewModel", "Error getting documents: ", exception)
-                _errorMessage.postValue("Error checking location: ${exception.message}")
-            }
+                    prepareForNextScan()
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("ScanViewModel", "Error getting documents: ", exception)
+                    _errorMessage.postValue("Error checking location: ${exception.message}")
+                    playErrorSound()
+                }
+        } else {
+            _skuScanData.postValue(data)
+            fetchAdditionalData(data)
+            saveScanDataToFirebase(currentLocation, data, null)
+            prepareForNextScan()
+        }
     }
 
     private fun fetchAdditionalData(sku: String) {
@@ -222,6 +237,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 _license.postValue("Data not available")
                 _title.postValue("Data not available")
                 _serialnum.postValue("Data not available")
+                playErrorSound()
             }
     }
 
@@ -229,6 +245,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
     private fun saveScanDataToFirebase(location: String?, sku: String, locCode: String?) {
         if (location == null) {
             Log.e("ScanViewModel", "Location is null. Cannot save scan data.")
+            playErrorSound()
             return
         }
 
@@ -259,16 +276,29 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                     .set(skuData)
                     .addOnSuccessListener {
                         Log.d("ScanViewModel", "SKU data added with SKU as document ID: $sku")
+                        triggerScannerSoundTwice() // Trigger the scanner sound twice
                     }
                     .addOnFailureListener { e ->
                         Log.w("ScanViewModel", "Error adding SKU data", e)
                         _errorMessage.postValue("Error saving SKU data: ${e.message}")
+                        playErrorSound()
                     }
             }
             .addOnFailureListener { e ->
                 Log.w("ScanViewModel", "Error setting locCode", e)
                 _errorMessage.postValue("Error saving locCode: ${e.message}")
+                playErrorSound()
             }
+    }
+
+    private fun triggerScannerSoundTwice() {
+        // Assuming that triggering scanner will make the sound, call it twice
+        triggerScanner(false)
+        triggerScanner(false)
+    }
+
+    private fun playErrorSound() {
+        toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200) // Adjust tone type and duration as needed
     }
 
     override fun onClosed() {
@@ -282,5 +312,10 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
             emdkManager.release()
         }
         super.onCleared()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        toneGenerator.release()
     }
 }
