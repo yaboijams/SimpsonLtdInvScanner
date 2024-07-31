@@ -1,15 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Layout for inventory activity -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Inventory"
-        android:textSize="24sp"
-        android:layout_centerInParent="true"/>
+        android:padding="16dp">
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/inventoryLocationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Inventory Location"
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/errorMessageTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Error message"
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"
+            android:layout_below="@id/inventoryLocationTextView"
+            android:layout_marginTop="8dp"
+            android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
+</ScrollView>

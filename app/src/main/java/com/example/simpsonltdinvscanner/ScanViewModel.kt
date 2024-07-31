@@ -23,8 +23,8 @@ import java.time.ZoneId
 
 class ScanViewModel(application: Application) : AndroidViewModel(application), EMDKManager.EMDKListener, Scanner.DataListener {
     private lateinit var emdkManager: EMDKManager
-    private lateinit var barcodeManager: BarcodeManager
-    private lateinit var scanner: Scanner
+    private var barcodeManager: BarcodeManager? = null
+    private var scanner: Scanner? = null
 
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
 
@@ -101,17 +101,22 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         initScanner()
     }
 
-    private fun initScanner() {
+    fun initScanner() {
         try {
             Log.d("ScanViewModel", "Initializing scanner")
-            if (::scanner.isInitialized) {
-                scanner.release()
+            if (scanner != null) {
+                scanner?.release()
             }
 
-            scanner = barcodeManager.getDevice(BarcodeManager.DeviceIdentifier.DEFAULT)
-            scanner.addDataListener(this)
-            scanner.triggerType = Scanner.TriggerType.HARD
-            scanner.enable()
+            if (barcodeManager == null) {
+                Log.e("ScanViewModel", "BarcodeManager is not initialized")
+                return
+            }
+
+            scanner = barcodeManager?.getDevice(BarcodeManager.DeviceIdentifier.DEFAULT)
+            scanner?.addDataListener(this)
+            scanner?.triggerType = Scanner.TriggerType.HARD
+            scanner?.enable()
             Log.d("ScanViewModel", "Scanner initialized successfully")
             isScannerInitialized = true
         } catch (e: ScannerException) {
@@ -124,7 +129,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         try {
             if (isScannerInitialized) {
                 Log.d("ScanViewModel", "Scanner triggered")
-                scanner.read()
+                scanner?.read()
             } else {
                 Log.e("ScanViewModel", "Scanner is not initialized")
             }
@@ -134,11 +139,11 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
     }
 
     fun prepareForNextScan() {
-        if (::scanner.isInitialized) {
+        if (scanner != null) {
             try {
                 Log.d("ScanViewModel", "Preparing for next scan")
-                scanner.cancelRead()
-                scanner.read()
+                scanner?.cancelRead()
+                scanner?.read()
             } catch (e: ScannerException) {
                 Log.e("ScanViewModel", "Error preparing for next scan: ${e.message}")
             }
@@ -307,14 +312,19 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         }
     }
 
-    fun onDestroy() {
-        if (::emdkManager.isInitialized) {
-            emdkManager.release()
+    fun releaseScanner() {
+        if (scanner != null) {
+            try {
+                scanner?.release()
+                Log.d("ScanViewModel", "Scanner released successfully")
+            } catch (e: ScannerException) {
+                Log.e("ScanViewModel", "Error releasing scanner: ${e.message}")
+            }
         }
-        super.onCleared()
     }
 
     override fun onCleared() {
+        releaseScanner()
         super.onCleared()
         toneGenerator.release()
     }

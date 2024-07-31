@@ -18,6 +18,7 @@ class ScanActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
 
+        // Observers for LiveData
         viewModel.locationScanData.observe(this, Observer { scanData ->
             Log.d("ScanActivity", "Location scanned data observed: $scanData")
             findViewById<TextView>(R.id.actualLocationTextView).text = scanData
@@ -42,18 +43,6 @@ class ScanActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.roomDescriptionTextView).text = description
         })
 
-//        viewModel.category.observe(this, Observer { category ->
-//            findViewById<TextView>(R.id.categoryTextView).text = category
-//        })
-//
-//        viewModel.subcategory.observe(this, Observer { subcategory ->
-//            findViewById<TextView>(R.id.subcategoryTextView).text = subcategory
-//        })
-//
-//        viewModel.subcategoryType.observe(this, Observer { subcategoryType ->
-//            findViewById<TextView>(R.id.subcategoryTypeTextView).text = subcategoryType
-//        })
-
         viewModel.action.observe(this, Observer { action ->
             findViewById<TextView>(R.id.actionTextView).text = action
         })
@@ -75,13 +64,23 @@ class ScanActivity : AppCompatActivity() {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Reinitialize the scanner
+        viewModel.initScanner()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Release scanner resources when the activity is paused
+        viewModel.releaseScanner()
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         Log.d("ScanActivity", "Key down event: keyCode = $keyCode")
-        when (keyCode) {
-            103, 10036 -> {
-                viewModel.triggerScanner(isScanningLocation)
-                return true
-            }
+        if (keyCode == 103 || keyCode == 10036) {
+            viewModel.triggerScanner(isScanningLocation)
+            return true
         }
         return super.onKeyDown(keyCode, event)
     }
