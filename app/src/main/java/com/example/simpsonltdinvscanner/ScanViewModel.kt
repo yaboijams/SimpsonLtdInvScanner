@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
 import com.symbol.emdk.barcode.BarcodeManager
@@ -261,7 +262,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
 
         db.collection("scanner")
             .document(location)
-            .set(scannerDocData) // Set the locCode in the scanner document
+            .set(scannerDocData, SetOptions.merge()) // Use merge to avoid overwriting existing fields
             .addOnSuccessListener {
                 Log.d("ScanViewModel", "locCode set successfully for location: $location")
 
@@ -272,13 +273,15 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 // Save SKU and timestamp in a new document with the SKU as the document ID
                 val skuData = hashMapOf(
                     "sku" to sku,
-                    "timestamp" to timestamp
+                    "timestamp" to timestamp,
+                    // Add other fields here as needed, but don't include PreviousLocation if you want to preserve it
                 )
+
                 db.collection("scanner")
                     .document(location)
                     .collection("skus")
                     .document(sku) // Use SKU as the document ID
-                    .set(skuData)
+                    .set(skuData, SetOptions.merge()) // Use merge to avoid overwriting existing fields
                     .addOnSuccessListener {
                         Log.d("ScanViewModel", "SKU data added with SKU as document ID: $sku")
                         triggerScannerSoundTwice() // Trigger the scanner sound twice
@@ -295,6 +298,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 playErrorSound()
             }
     }
+
 
     private fun triggerScannerSoundTwice() {
         // Assuming that triggering scanner will make the sound, call it twice
