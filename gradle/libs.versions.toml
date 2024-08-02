@@ -17,6 +17,8 @@ navigationUiKtx = "2.7.7"
 googleGmsGoogleServices = "4.4.2"
 firebaseStorage = "21.0.0"
 firebaseFirestore = "25.0.0"
+protobufBom = "4.28.0-RC1"
+protocGenJavalite = "3.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +36,8 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+protobuf-bom = { group = "com.google.protobuf", name = "protobuf-bom", version.ref = "protobufBom" }
+protoc-gen-javalite = { group = "com.google.protobuf", name = "protoc-gen-javalite", version.ref = "protocGenJavalite" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

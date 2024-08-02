@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -62,6 +63,14 @@ class ScanActivity : AppCompatActivity() {
         viewModel.serialnum.observe(this, Observer { serialnum ->
             findViewById<TextView>(R.id.serialnumTextView).text = serialnum
         })
+
+        // Reset button to reset location information
+        findViewById<Button>(R.id.resetLocationButton).setOnClickListener {
+            viewModel.resetLocation()
+            findViewById<TextView>(R.id.actualLocationTextView).text = ""
+            findViewById<TextView>(R.id.roomDescriptionTextView).text = ""
+            isScanningLocation = true
+        }
     }
 
     override fun onResume() {

@@ -2,8 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="simpsonltd">#F7E9BD</color>
-    <color name="simpsonltddark">#333</color>
-    <color name="simpsonltdblue">#0F171F</color>
-    <color name="simpsonltdblue2">#5B6D7E</color>
+    <color name="gold">#D4AF37</color> <!-- Premium gold color -->
+    <color name="darkGray">#2C2C2C</color> <!-- Dark gray for contrast -->
+    <color name="darkBlue">#1A202C</color> <!-- Dark blue for background -->
+    <color name="lightBlue">#4A5568</color> <!-- Lighter blue for accents -->
+    <color name="silver">#C0C0C0</color> <!-- Silver for highlights -->
 </resources>

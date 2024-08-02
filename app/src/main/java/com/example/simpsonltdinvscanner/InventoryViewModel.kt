@@ -10,6 +10,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
 import com.symbol.emdk.barcode.BarcodeManager
@@ -17,6 +18,8 @@ import com.symbol.emdk.barcode.ScanDataCollection
 import com.symbol.emdk.barcode.Scanner
 import com.symbol.emdk.barcode.ScannerException
 import com.symbol.emdk.barcode.ScannerResults
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class InventoryViewModel(application: Application) : AndroidViewModel(application), EMDKManager.EMDKListener, Scanner.DataListener {
     private lateinit var emdkManager: EMDKManager
@@ -25,14 +28,38 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
 
-    private val _inventoryLocationData = MutableLiveData<String>()
-    val inventoryLocationData: LiveData<String> get() = _inventoryLocationData
+    private val _scannedData = MutableLiveData<String>()
+    val scannedData: LiveData<String> get() = _scannedData
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String> get() = _errorMessage
+    private val _invDate = MutableLiveData<String>()
+    val invDate: LiveData<String> get() = _invDate
+
+    private val _invLocation = MutableLiveData<String>()
+    val invLocation: LiveData<String> get() = _invLocation
+
+    private val _previousLocation = MutableLiveData<String>()
+    val previousLocation: LiveData<String> get() = _previousLocation
+
+    private val _title = MutableLiveData<String>()
+    val title: LiveData<String> get() = _title
+
+    private val _action = MutableLiveData<String>()
+    val action: LiveData<String> get() = _action
+
+    private val _caliber = MutableLiveData<String>()
+    val caliber: LiveData<String> get() = _caliber
+
+    private val _serialNum = MutableLiveData<String>()
+    val serialNum: LiveData<String> get() = _serialNum
+
+    private val _fflType = MutableLiveData<String>()
+    val fflType: LiveData<String> get() = _fflType
 
     private val db = FirebaseFirestore.getInstance()
     private val algoliaCollection = db.collection("Algolia")
+
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> get() = _errorMessage
 
     private var isScannerInitialized = false
 
@@ -122,26 +149,47 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
             for (scanData in scanDataCollection.scanData) {
                 val scannedData = scanData.data
                 Log.d("InventoryViewModel", "Received scan data: $scannedData")
-                checkInventoryLocation(scannedData)
+                fetchFirestoreData(scannedData)
             }
         } else {
             playErrorSound()
         }
     }
 
-    private fun checkInventoryLocation(scannedData: String) {
+    private fun fetchFirestoreData(scannedData: String) {
         algoliaCollection.document(scannedData).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
-                    _inventoryLocationData.postValue("Item found in location: ${document.getString("location")}")
+                    _scannedData.postValue(scannedData)
+
+                    // Handling both Timestamp and String for InvDate
+                    val invDate = document.get("InvDate")
+                    val formattedDate = when (invDate) {
+                        is Timestamp -> {
+                            val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+                            dateFormat.format(invDate.toDate())
+                        }
+                        is String -> invDate
+                        else -> "Date not available"
+                    }
+                    _invDate.postValue(formattedDate)
+
+                    _invLocation.postValue(document.getString("InvLocation") ?: "Location not available")
+                    _previousLocation.postValue(document.getString("PreviousLocation") ?: "Previous location not available")
+                    _title.postValue(document.getString("Title") ?: "Title not available")
+                    _action.postValue(document.getString("Action") ?: "Action not available")
+                    _caliber.postValue(document.getString("Caliber") ?: "Caliber not available")
+                    _serialNum.postValue(document.getString("SerialNum") ?: "Serial number not available")
+                    _fflType.postValue(document.getString("FFLType") ?: "FFL type not available")
                 } else {
-                    _inventoryLocationData.postValue("Item not found")
+                    _errorMessage.postValue("Item not found")
+                    playErrorSound()
                 }
                 prepareForNextScan()
             }
             .addOnFailureListener { exception ->
-                Log.e("InventoryViewModel", "Error checking inventory: ", exception)
-                _errorMessage.postValue("Error checking inventory: ${exception.message}")
+                Log.e("InventoryViewModel", "Error fetching Firestore data: ", exception)
+                _errorMessage.postValue("Error fetching Firestore data: ${exception.message}")
                 playErrorSound()
             }
     }

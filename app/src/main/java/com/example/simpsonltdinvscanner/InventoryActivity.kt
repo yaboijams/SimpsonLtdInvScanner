@@ -16,11 +16,61 @@ class InventoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inventory)
 
-        viewModel.inventoryLocationData.observe(this, Observer { locationData ->
-            Log.d("InventoryActivity", "Inventory location data observed: $locationData")
-            findViewById<TextView>(R.id.inventoryLocationTextView).text = locationData
+        // Observe scanned data
+        viewModel.scannedData.observe(this, Observer { scannedData ->
+            Log.d("InventoryActivity", "Scanned data observed: $scannedData")
+            findViewById<TextView>(R.id.scannedDataTextView).text = scannedData
         })
 
+        // Observe inventory date
+        viewModel.invDate.observe(this, Observer { invDate ->
+            Log.d("InventoryActivity", "Inventory date observed: $invDate")
+            findViewById<TextView>(R.id.invDateTextView).text = invDate
+        })
+
+        // Observe inventory location
+        viewModel.invLocation.observe(this, Observer { invLocation ->
+            Log.d("InventoryActivity", "Inventory location observed: $invLocation")
+            findViewById<TextView>(R.id.invLocationTextView).text = invLocation
+        })
+
+        // Observe previous location
+        viewModel.previousLocation.observe(this, Observer { previousLocation ->
+            Log.d("InventoryActivity", "Previous location observed: $previousLocation")
+            findViewById<TextView>(R.id.previousLocationTextView).text = previousLocation
+        })
+
+        // Observe title
+        viewModel.title.observe(this, Observer { title ->
+            Log.d("InventoryActivity", "Title observed: $title")
+            findViewById<TextView>(R.id.titleTextView).text = title
+        })
+
+        // Observe action
+        viewModel.action.observe(this, Observer { action ->
+            Log.d("InventoryActivity", "Action observed: $action")
+            findViewById<TextView>(R.id.actionTextView).text = action
+        })
+
+        // Observe caliber
+        viewModel.caliber.observe(this, Observer { caliber ->
+            Log.d("InventoryActivity", "Caliber observed: $caliber")
+            findViewById<TextView>(R.id.caliberTextView).text = caliber
+        })
+
+        // Observe serial number
+        viewModel.serialNum.observe(this, Observer { serialNum ->
+            Log.d("InventoryActivity", "Serial number observed: $serialNum")
+            findViewById<TextView>(R.id.serialNumTextView).text = serialNum
+        })
+
+        // Observe FFL type
+        viewModel.fflType.observe(this, Observer { fflType ->
+            Log.d("InventoryActivity", "FFL type observed: $fflType")
+            findViewById<TextView>(R.id.fflTypeTextView).text = fflType
+        })
+
+        // Observe error messages
         viewModel.errorMessage.observe(this, Observer { errorMessage ->
             findViewById<TextView>(R.id.errorMessageTextView).apply {
                 text = errorMessage

@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/darkBlue"
+    android:padding="16dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@color/darkGray"
+        android:layout_margin="16dp"
+        android:elevation="8dp"
+        android:clipToPadding="false">
 
         <TextView
-            android:id="@+id/inventoryLocationTextView"
+            android:id="@+id/scannedDataTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Inventory Location"
+            android:text="Scanned Data"
             android:textSize="24sp"
+            android:textColor="@color/gold"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"/>
 
         <TextView
             android:id="@+id/errorMessageTextView"
@@ -25,8 +35,112 @@
             android:textSize="16sp"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
-            android:layout_below="@id/inventoryLocationTextView"
+            android:layout_below="@id/scannedDataTextView"
             android:layout_marginTop="8dp"
             android:layout_centerHorizontal="true"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/errorMessageTextView"
+            android:layout_marginTop="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="8dp"
+            android:background="@color/black">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/invDateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Inventory Date"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_alignParentTop="true"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/invLocationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Inventory Location"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/invDateTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/previousLocationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Previous Location"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/invLocationTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/titleTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/previousLocationTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/actionTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Action"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/titleTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/caliberTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Caliber"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/actionTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/serialNumTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Serial Number"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/caliberTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+
+                <TextView
+                    android:id="@+id/fflTypeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="FFL Type"
+                    android:textSize="18sp"
+                    android:textColor="@color/silver"
+                    android:layout_below="@id/serialNumTextView"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-light"/>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
     </RelativeLayout>
 </ScrollView>

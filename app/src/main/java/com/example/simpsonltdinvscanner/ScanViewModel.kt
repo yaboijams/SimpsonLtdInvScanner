@@ -10,7 +10,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKResults
 import com.symbol.emdk.barcode.BarcodeManager
@@ -153,6 +152,12 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         }
     }
 
+    fun resetLocation() {
+        currentLocation = null
+        _locationScanData.postValue("")
+        _roomDescription.postValue("")
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onData(scanDataCollection: ScanDataCollection?) {
         if (scanDataCollection != null && scanDataCollection.result == ScannerResults.SUCCESS) {
@@ -262,7 +267,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
 
         db.collection("scanner")
             .document(location)
-            .set(scannerDocData, SetOptions.merge()) // Use merge to avoid overwriting existing fields
+            .set(scannerDocData) // Set the locCode in the scanner document
             .addOnSuccessListener {
                 Log.d("ScanViewModel", "locCode set successfully for location: $location")
 
@@ -273,15 +278,13 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 // Save SKU and timestamp in a new document with the SKU as the document ID
                 val skuData = hashMapOf(
                     "sku" to sku,
-                    "timestamp" to timestamp,
-                    // Add other fields here as needed, but don't include PreviousLocation if you want to preserve it
+                    "timestamp" to timestamp
                 )
-
                 db.collection("scanner")
                     .document(location)
                     .collection("skus")
                     .document(sku) // Use SKU as the document ID
-                    .set(skuData, SetOptions.merge()) // Use merge to avoid overwriting existing fields
+                    .set(skuData)
                     .addOnSuccessListener {
                         Log.d("ScanViewModel", "SKU data added with SKU as document ID: $sku")
                         triggerScannerSoundTwice() // Trigger the scanner sound twice
@@ -298,7 +301,6 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 playErrorSound()
             }
     }
-
 
     private fun triggerScannerSoundTwice() {
         // Assuming that triggering scanner will make the sound, call it twice
