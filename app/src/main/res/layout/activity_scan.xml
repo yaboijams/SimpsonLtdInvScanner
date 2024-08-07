@@ -75,24 +75,12 @@
                 android:textColor="@color/gold"/>
         </androidx.cardview.widget.CardView>
 
-        <!-- Reset Location Button -->
-        <Button
-            android:id="@+id/resetLocationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/roomDescriptionCardView"
-            android:layout_marginTop="16dp"
-            android:layout_centerHorizontal="true"
-            android:text="Reset Location"
-            android:backgroundTint="@color/gold"
-            android:textColor="@color/darkGray"/>
-
         <!-- Error Message Section -->
         <TextView
             android:id="@+id/errorMessageTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/resetLocationButton"
+            android:layout_below="@id/roomDescriptionCardView"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
             android:textColor="@android:color/holo_red_dark"

@@ -152,12 +152,6 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
         }
     }
 
-    fun resetLocation() {
-        currentLocation = null
-        _locationScanData.postValue("")
-        _roomDescription.postValue("")
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onData(scanDataCollection: ScanDataCollection?) {
         if (scanDataCollection != null && scanDataCollection.result == ScannerResults.SUCCESS) {
@@ -173,46 +167,39 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun checkLocationValidityOrSku(data: String) {
-        if (currentLocation.isNullOrEmpty()) {
-            locationsCollection.get()
-                .addOnSuccessListener { documents ->
-                    var isLocation = false
-                    var description = ""
-                    for (document in documents) {
-                        val locCode = document.getString("locCode")
-                        val locDescription = document.getString("description")
-                        if (locCode != null && data.startsWith(locCode)) {
-                            isLocation = true
-                            description = locDescription ?: "No description available"
-                            currentLocation = data // Set currentLocation when a valid location is found
-                            break
-                        }
+        locationsCollection.get()
+            .addOnSuccessListener { documents ->
+                var isLocation = false
+                var description = ""
+                for (document in documents) {
+                    val locCode = document.getString("locCode")
+                    val locDescription = document.getString("description")
+                    if (locCode != null && data.startsWith(locCode)) {
+                        isLocation = true
+                        description = locDescription ?: "No description available"
+                        currentLocation = data // Update currentLocation when a valid location is found
+                        break
                     }
-                    if (isLocation) {
-                        _locationScanData.postValue(data)
-                        _roomDescription.postValue(description)
-                    } else {
-                        _skuScanData.postValue(data)
-                        fetchAdditionalData(data)
-                        saveScanDataToFirebase(currentLocation, data, null)
-                        if (currentLocation.isNullOrEmpty()) {
-                            playErrorSound() // Play error sound only if no valid location was set
-                        }
+                }
+                if (isLocation) {
+                    _locationScanData.postValue(data)
+                    _roomDescription.postValue(description)
+                } else {
+                    _skuScanData.postValue(data)
+                    fetchAdditionalData(data)
+                    saveScanDataToFirebase(currentLocation, data, null)
+                    if (currentLocation.isNullOrEmpty()) {
+                        playErrorSound() // Play error sound only if no valid location was set
                     }
+                }
 
-                    prepareForNextScan()
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("ScanViewModel", "Error getting documents: ", exception)
-                    _errorMessage.postValue("Error checking location: ${exception.message}")
-                    playErrorSound()
-                }
-        } else {
-            _skuScanData.postValue(data)
-            fetchAdditionalData(data)
-            saveScanDataToFirebase(currentLocation, data, null)
-            prepareForNextScan()
-        }
+                prepareForNextScan()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ScanViewModel", "Error getting documents: ", exception)
+                _errorMessage.postValue("Error checking location: ${exception.message}")
+                playErrorSound()
+            }
     }
 
     private fun fetchAdditionalData(sku: String) {
@@ -224,7 +211,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                     _subcategoryType.postValue(document.getString("SubcategoryType") ?: "Data not available")
                     _action.postValue(document.getString("Action") ?: "Data not available")
                     _caliber.postValue(document.getString("Caliber") ?: "Data not available")
-                    _license.postValue(document.getString("License") ?: "Data not available")
+                    _license.postValue(document.getString("FFLType") ?: "Data not available")
                     _title.postValue(document.getString("Title") ?: "Data not available")
                     _serialnum.postValue(document.getString("SerialNum") ?: "Data not available")
                 } else {
