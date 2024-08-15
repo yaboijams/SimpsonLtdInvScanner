@@ -66,6 +66,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
     private val db = FirebaseFirestore.getInstance()
     private val locationsCollection = db.collection("Locations")
     private val algoliaCollection = db.collection("Algolia")
+    private val latestScannerInfoCollection = db.collection("LatestScannerInfo")
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
@@ -187,7 +188,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
                 } else {
                     _skuScanData.postValue(data)
                     fetchAdditionalData(data)
-                    saveScanDataToFirebase(currentLocation, data, null)
+                    saveScanDataToFirebase(data, currentLocation)
                     if (currentLocation.isNullOrEmpty()) {
                         playErrorSound() // Play error sound only if no valid location was set
                     }
@@ -240,51 +241,39 @@ class ScanViewModel(application: Application) : AndroidViewModel(application), E
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun saveScanDataToFirebase(location: String?, sku: String, locCode: String?) {
+    private fun saveScanDataToFirebase(sku: String, location: String?) {
         if (location == null) {
             Log.e("ScanViewModel", "Location is null. Cannot save scan data.")
             playErrorSound()
             return
         }
 
-        // Save locCode in the scanner document
-        val scannerDocData = hashMapOf(
-            "locCode" to locCode
-        )
+        val docRef = latestScannerInfoCollection.document(sku)
+        docRef.get()
+            .addOnSuccessListener { document ->
+                val previousLocation = document.getString("InvLocation")
+                val timestamp = ZonedDateTime.now(ZoneId.of("America/Chicago")).format(DateTimeFormatter.ISO_INSTANT)
 
-        db.collection("scanner")
-            .document(location)
-            .set(scannerDocData) // Set the locCode in the scanner document
-            .addOnSuccessListener {
-                Log.d("ScanViewModel", "locCode set successfully for location: $location")
-
-                // Format the timestamp to ISO 8601 in CST
-                val timestamp = ZonedDateTime.now(ZoneId.of("America/Chicago"))
-                    .format(DateTimeFormatter.ISO_INSTANT)
-
-                // Save SKU and timestamp in a new document with the SKU as the document ID
-                val skuData = hashMapOf(
-                    "sku" to sku,
-                    "timestamp" to timestamp
+                val scannerData = hashMapOf(
+                    "InvDate" to timestamp,
+                    "InvLocation" to location,
+                    "PreviousLocation" to previousLocation
                 )
-                db.collection("scanner")
-                    .document(location)
-                    .collection("skus")
-                    .document(sku) // Use SKU as the document ID
-                    .set(skuData)
+
+                docRef.set(scannerData)
                     .addOnSuccessListener {
-                        Log.d("ScanViewModel", "SKU data added with SKU as document ID: $sku")
+                        Log.d("ScanViewModel", "Data successfully saved for SKU: $sku")
                         triggerScannerSoundTwice() // Trigger the scanner sound twice
                     }
                     .addOnFailureListener { e ->
-                        Log.w("ScanViewModel", "Error adding SKU data", e)
-                        _errorMessage.postValue("Error saving SKU data: ${e.message}")
+                        Log.w("ScanViewModel", "Error saving scan data", e)
+                        _errorMessage.postValue("Error saving scan data: ${e.message}")
                         playErrorSound()
                     }
             }
             .addOnFailureListener { e ->
-                Log.w("ScanViewModel", "Error setting locCode", e)
-                _errorMessage.postValue("Error saving locCode: ${e.message}")
+                Log.w("ScanViewModel", "Error retrieving existing document", e)
+                _errorMessage.postValue("Error retrieving document: ${e.message}")
                 playErrorSound()
             }
     }
