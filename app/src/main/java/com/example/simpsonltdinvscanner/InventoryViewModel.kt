@@ -172,44 +172,21 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
                             dateFormat.format(invDate.toDate())
                         }
                         is String -> invDate
-                        else -> "Date not available"
+                        else -> "Data not currently available"
                     }
                     _invDate.postValue(formattedDate)
 
-                    // Set InvLocation to "SR-R01" if it is not available or is null
-                    val invLocation = document.getString("InvLocation") ?: "SR-R01"
-                    if (invLocation.isEmpty()) {
-                        Log.w("InventoryViewModel", "InvLocation is empty, defaulting to SR-R01")
-                        _invLocation.postValue("SR-R01")
-                    } else {
-                        _invLocation.postValue(invLocation)
-                    }
+                    val invLocation = document.getString("InvLocation") ?: "Data not currently available"
+                    _invLocation.postValue(invLocation)
 
                     Log.d("InventoryViewModel", "InvLocation is set to: ${_invLocation.value}")
 
-                    _previousLocation.postValue(document.getString("PreviousLocation") ?: "Previous location not available")
-                    _title.postValue(document.getString("Title") ?: "Title not available")
-                    _action.postValue(document.getString("Action") ?: "Action not available")
-                    _caliber.postValue(document.getString("Caliber") ?: "Caliber not available")
-                    _serialNum.postValue(document.getString("SerialNum") ?: "Serial number not available")
-                    _fflType.postValue(document.getString("FFLType") ?: "FFL type not available")
-
-                    // Update InvDate with the current date in ISO 8601 format (UTC)
-                    val currentDate = Timestamp.now()
-                    val formattedCurrentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
-                        timeZone = TimeZone.getTimeZone("UTC")
-                    }.format(currentDate.toDate())
-
-                    algoliaCollection.document(scannedData)
-                        .update("InvDate", formattedCurrentDate)
-                        .addOnSuccessListener {
-                            Log.d("InventoryViewModel", "InvDate successfully updated for $scannedData")
-                            updateScannerTimestamp(invLocation, scannedData, formattedCurrentDate)
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("InventoryViewModel", "Error updating InvDate for $scannedData: ", e)
-                            _errorMessage.postValue("Error updating InvDate: ${e.message}")
-                        }
+                    _previousLocation.postValue(document.getString("PreviousLocation") ?: "Data not currently available")
+                    _title.postValue(document.getString("Title") ?: "Data not currently available")
+                    _action.postValue(document.getString("Action") ?: "Data not currently available")
+                    _caliber.postValue(document.getString("Caliber") ?: "Data not currently available")
+                    _serialNum.postValue(document.getString("SerialNum") ?: "Data not currently available")
+                    _fflType.postValue(document.getString("FFLType") ?: "Data not currently available")
 
                 } else {
                     _errorMessage.postValue("Item not found")
@@ -223,49 +200,6 @@ class InventoryViewModel(application: Application) : AndroidViewModel(applicatio
                 playErrorSound()
             }
     }
-
-
-    private fun updateScannerTimestamp(invLocation: String?, sku: String, formattedCurrentDate: String) {
-        val scannerCollection = db.collection("scanner")
-
-        // Set location to "SR-R01" if invLocation is null or empty
-        val location = invLocation?.takeIf { it.isNotBlank() } ?: "SR-R01"
-
-        Log.d("InventoryViewModel", "Updating scanner with location: $location")
-
-        val scannerDocRef = scannerCollection.document(location).collection("skus").document(sku)
-
-        scannerDocRef.get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // If document exists, update the timestamp
-                    scannerDocRef.update("timestamp", formattedCurrentDate)
-                        .addOnSuccessListener {
-                            Log.d("InventoryViewModel", "Scanner timestamp successfully updated for SKU: $sku at location: $location")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("InventoryViewModel", "Error updating scanner timestamp for SKU: $sku at location: $location", e)
-                            _errorMessage.postValue("Error updating scanner timestamp: ${e.message}")
-                        }
-                } else {
-                    // If document does not exist, create it with the timestamp
-                    scannerDocRef.set(mapOf("timestamp" to formattedCurrentDate))
-                        .addOnSuccessListener {
-                            Log.d("InventoryViewModel", "Created and set scanner timestamp for SKU: $sku at location: $location")
-                        }
-                        .addOnFailureListener { e ->
-                            Log.e("InventoryViewModel", "Error creating scanner document for SKU: $sku at location: $location", e)
-                            _errorMessage.postValue("Error creating scanner document: ${e.message}")
-                        }
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("InventoryViewModel", "Error fetching scanner document for SKU: $sku at location: $location", e)
-                _errorMessage.postValue("Error fetching scanner document: ${e.message}")
-            }
-    }
-
-
 
     private fun playErrorSound() {
         toneGenerator.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200) // Adjust tone type and duration as needed
